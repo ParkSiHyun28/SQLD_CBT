@@ -1,0 +1,16 @@
+# PDF 자료 (저작권)
+*.pdf
+
+# Claude 설정
+.claude/
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+
+# 임시
+*.tmp
+*.bak

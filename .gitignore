@@ -1,16 +1,26 @@
-# PDF 자료 (저작권)
+# ── 원본 데이터 (배포 안 함, 본인만 보유) ──
+draft_*.js
+build_questions.js
+questions.json
+
+# ── 기획/설계 문서 (배포 안 함) ──
+FINAL_PLAN.md
+TOPIC_MATRIX.md
+TRAPS.md
+SITE_BUILD_GUIDE.md
+SAMPLE_QUESTIONS.md
+PRODUCT.md
+DESIGN.md
+sample.html
+
+# ── PDF 학습자료 (저작권) ──
 *.pdf
 
-# Claude 설정
-.claude/
-
-# macOS
+# ── 시스템 / 임시 ──
 .DS_Store
-
-# Node
+.claude/
 node_modules/
 npm-debug.log*
-
-# 임시
+.wrangler/
 *.tmp
 *.bak

@@ -107,7 +107,7 @@ body {
 .btn-lg { padding: 14px 24px; font-size: 0.95rem; }
 
 /* ───────── HOME ───────── */
-.home-wrap { max-width: 720px; margin: var(--s-7) auto; }
+.home-wrap { max-width: 960px; margin: var(--s-7) auto; }
 .home-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-5); margin-bottom: var(--s-5); }
 .home-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: var(--s-2); }
 .home-sub { font-size: 0.875rem; color: var(--text-sub); }
@@ -132,12 +132,17 @@ body {
 .theme-toggle button.on { background: var(--surface-2); color: var(--text); font-weight: 600; }
 .theme-toggle button:hover:not(.on) { color: var(--text); }
 .home-spec {
-  font-size: 0.875rem; color: var(--text-sub);
+  font-size: 0.8125rem; color: var(--text-sub);
   padding: var(--s-3) var(--s-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-2);
   margin-bottom: var(--s-5);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+@media (max-width: 720px) {
+  .home-spec { white-space: normal; font-size: 0.75rem; line-height: 1.6; }
 }
 .home-spec b { color: var(--text); font-weight: 600; }
 .mode-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-3); overflow: hidden; }

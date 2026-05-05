@@ -1333,7 +1333,15 @@ function makeExpRow(label, contentHtml, isHtml = false) {
 
 function formatBold(s) {
   // **텍스트** → <b>
-  return escapeHtml(String(s)).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  let html = escapeHtml(String(s)).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  // (가)/(나)/(다)/(라)/(마)/(바) 항목 도입부 앞에 줄바꿈
+  // 단, "(가)와", "(가)를", "(가)만", "(가) 형태" 처럼 본문 언급은 제외.
+  // 휴리스틱: 마침표 또는 콜론 직후 + 공백 + (한글) → 새 항목으로 간주
+  html = html.replace(
+    /([.:;])\s+(\([가-바]\))/g,
+    '$1<br>$2'
+  );
+  return html;
 }
 
 /* 답안 선택 */

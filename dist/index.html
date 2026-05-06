@@ -291,6 +291,19 @@ body {
 .q-num { font-size: 0.75rem; color: var(--text-mute); }
 .q-num b { color: var(--text-sub); font-weight: 600; }
 .q-body { font-size: 1rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: keep-all; }
+.situation-box {
+  margin-top: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-sub);
+  border-radius: var(--r-2);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-sub);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
 
 .blocks { margin: var(--s-5) 0; display: flex; flex-direction: column; gap: var(--s-4); }
 .block-title { font-size: 0.75rem; color: var(--text-sub); margin-bottom: var(--s-2); font-weight: 600; letter-spacing: 0.02em; }
@@ -1100,8 +1113,7 @@ function renderQuiz() {
   meta.appendChild(num);
   card.appendChild(meta);
 
-  const body = el('div', 'q-body', formatQuestion(q.q || ''));
-  card.appendChild(body);
+  renderQuestionBody(card, q.q || '');
 
   if (q.blocks && q.blocks.length) {
     const wrap = el('div', 'blocks');
@@ -1326,6 +1338,32 @@ function makeExpRow(label, contentHtml, isHtml = false) {
   return row;
 }
 
+function renderQuestionBody(parent, raw) {
+  const formatted = formatQuestion(raw);
+  const lines = formatted.split('\n');
+  let mainBuf = [];
+  const sitBuf = [];
+  let inSituation = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // 부가 설명 박스 시작 패턴: [라벨], 「인용」, (가)/(나)/(다), {...}→, 단어→
+    const startsWithLabel = /^(\[[가-힣A-Za-z][^\]\n]{0,80}\]|「|\([가-바]\)|\{[^}]+\}\s*→|[가-힣A-Za-z][가-힣A-Za-z0-9, ]{0,30}→)/.test(trimmed);
+    if (startsWithLabel) {
+      inSituation = true;
+      sitBuf.push(line);
+    } else if (inSituation) {
+      // 상황 박스가 시작된 뒤 이어지는 줄은 같은 박스에 누적
+      sitBuf.push(line);
+    } else {
+      mainBuf.push(line);
+    }
+  }
+  parent.appendChild(el('div', 'q-body', mainBuf.join('\n').trim()));
+  if (sitBuf.length) {
+    parent.appendChild(el('div', 'situation-box', sitBuf.join('\n').trim()));
+  }
+}
+
 function formatQuestion(s) {
   if (!s) return '';
   let t = String(s);
@@ -1339,6 +1377,13 @@ function formatQuestion(s) {
   t = t.replace(/([?.;:])\s+(\[[가-힣A-Za-z][^\]\n]{0,80}\])/g, '$1\n$2');
   // 발문 끝 (emp: ...), (EMP_DEPT ...) 같은 인라인 데이터 블록을 다음 줄로 떼낸다
   t = t.replace(/([?.;:])\s+(\((?:emp|EMP|T_EMP)[^()]*\))/g, '$1\n$2');
+  // 「...」 인용 직전에 줄바꿈
+  t = t.replace(/([?.;:])\s+(「)/g, '$1\n$2');
+  // (가) / (나) / (다) 시나리오 마커 직전에 줄바꿈
+  t = t.replace(/([?.;:])\s+(\([가-바]\))/g, '$1\n$2');
+  // 함수적 종속성 표기 {...} → ... 또는 단어 → 단어 직전에 줄바꿈
+  t = t.replace(/([?.;:])\s+(\{[^}]+\}\s*→)/g, '$1\n$2');
+  t = t.replace(/([?.;:])\s+([가-힣A-Za-z][가-힣A-Za-z0-9, ]{0,30}→)/g, '$1\n$2');
   return t;
 }
 

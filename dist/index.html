@@ -1100,7 +1100,7 @@ function renderQuiz() {
   meta.appendChild(num);
   card.appendChild(meta);
 
-  const body = el('div', 'q-body', q.q || '');
+  const body = el('div', 'q-body', formatQuestion(q.q || ''));
   card.appendChild(body);
 
   if (q.blocks && q.blocks.length) {
@@ -1324,6 +1324,22 @@ function makeExpRow(label, contentHtml, isHtml = false) {
   else body.innerHTML = formatBold(contentHtml);
   row.appendChild(body);
   return row;
+}
+
+function formatQuestion(s) {
+  if (!s) return '';
+  let t = String(s);
+  // 출제 메타 제거: "자료N ... 기준, " / "자료N ... 기준)" / "(자료N ... 기준)"
+  // 풀이에 필요한 다른 부수조건은 보존
+  t = t.replace(/\(자료\s*\d[^()]*?기준\s*,\s*([^()]*)\)/g, '($1)');
+  t = t.replace(/\(자료\s*\d[^()]*?기준\s*\)\s*/g, '');
+  t = t.replace(/자료\s*\d[^,()\n]*?기준\s*,?\s*/g, '');
+  // [라벨] 직전에 줄바꿈: 물음표/마침표/콜론/세미콜론 직후 공백+[라벨]만 분리
+  // 자연스러운 인용("다음 [수강신청] 테이블")은 그대로 두고, 발문이 끝난 뒤 등장하는 별도 단락만 떼낸다
+  t = t.replace(/([?.;:])\s+(\[[가-힣A-Za-z][^\]\n]{0,80}\])/g, '$1\n$2');
+  // 발문 끝 (emp: ...), (EMP_DEPT ...) 같은 인라인 데이터 블록을 다음 줄로 떼낸다
+  t = t.replace(/([?.;:])\s+(\((?:emp|EMP|T_EMP)[^()]*\))/g, '$1\n$2');
+  return t;
 }
 
 function formatBold(s) {

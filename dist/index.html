@@ -1258,11 +1258,8 @@ function escapeHtml(s) {
 
 function highlightSql(src) {
   let s = escapeHtml(src);
-  // 주석 (-- 또는 /* */)
-  s = s.replace(/(--[^\n]*)/g, '$1');
-  s = s.replace(/(\/\*[\s\S]*?\*\/)/g, '$1');
   // 문자열
-  s = s.replace(/('(?:[^']|'')*')/g, '<span class="sql-str">$1</span>');
+  s = s.replace(/(&#39;(?:(?!&#39;).)*&#39;)/g, '<span class="sql-str">$1</span>');
   // 키워드 (긴 것부터)
   const sortedKw = [...SQL_KEYWORDS].sort((a, b) => b.length - a.length);
   sortedKw.forEach(kw => {
@@ -1274,8 +1271,6 @@ function highlightSql(src) {
   s = s.replace(/(?<![\w가-힣<])(\d+(?:\.\d+)?)\b/g, '<span class="sql-num">$1</span>');
   // 빈칸 (한글 자모, 공백, 한글 짧은 표기)
   s = s.replace(/\(\s*([ㄱ-ㅎ]|[가-힣]{1,3}|\?{1,3}|[\s_]{2,})\s*\)/g, '<span class="sql-blank">($1)</span>');
-  // 주석 복원
-  s = s.replace(/([\s\S]*?)/g, '<span class="sql-cmt">$1</span>');
   return s;
 }
 

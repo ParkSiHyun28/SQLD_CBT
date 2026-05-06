@@ -294,12 +294,12 @@ body {
 .situation-box {
   margin-top: var(--s-3);
   padding: var(--s-3) var(--s-4);
-  background: var(--surface-2);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--r-2);
   font-size: 0.9375rem;
   line-height: 1.65;
-  color: var(--text-sub);
+  color: var(--text);
   white-space: pre-wrap;
   word-break: keep-all;
 }
@@ -1371,6 +1371,10 @@ function formatQuestion(s) {
   t = t.replace(/\(자료\s*\d[^()]*?기준\s*,\s*([^()]*)\)/g, '($1)');
   t = t.replace(/\(자료\s*\d[^()]*?기준\s*\)\s*/g, '');
   t = t.replace(/자료\s*\d[^,()\n]*?기준\s*,?\s*/g, '');
+  // 출처/참고 표기 제거: "(TRAPS.md ...)", "(자료3 p.xx 참고)", "(... 참고)"
+  t = t.replace(/\s*\([^()]*?(?:TRAPS\.md|\.md|자료\s*\d|개념정리)[^()]*\)\s*/g, ' ');
+  t = t.replace(/\s*\([^()]{1,40}참고\)\s*/g, ' ');
+  t = t.replace(/\s+([?.])/g, '$1').replace(/\s{2,}/g, ' ').trim();
   // [라벨] 직전에 줄바꿈: 물음표/마침표/콜론/세미콜론 직후 공백+[라벨]만 분리
   // 자연스러운 인용("다음 [수강신청] 테이블")은 그대로 두고, 발문이 끝난 뒤 등장하는 별도 단락만 떼낸다
   t = t.replace(/([?.;:])\s+(\[[가-힣A-Za-z][^\]\n]{0,80}\])/g, '$1\n$2');

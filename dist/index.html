@@ -963,6 +963,7 @@ function renderHome() {
 }
 
 let selectedTopics = new Set();
+const subjTopicCodes = { 1: [], 2: [] };
 
 function renderTopicChips() {
   const map1 = new Map();
@@ -972,15 +973,20 @@ function renderTopicChips() {
     if (!m.has(q.topic)) m.set(q.topic, { name: q.topic_name, count: 0 });
     m.get(q.topic).count++;
   });
-  const render = (m, container) => {
-    container.innerHTML = [...m.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
+  const render = (m, container, subj) => {
+    const entries = [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    subjTopicCodes[subj] = entries.map(([code]) => code);
+    const totalCount = entries.reduce((acc, [, info]) => acc + info.count, 0);
+    const allOn = entries.length > 0 && entries.every(([code]) => selectedTopics.has(code));
+    const allChip = `<button class="chip ${allOn ? 'on' : ''}" data-all-subj="${subj}">전체 <span style="opacity:.6;">${totalCount}</span></button>`;
+    const topicChips = entries
       .map(([code, info]) =>
         `<button class="chip ${selectedTopics.has(code) ? 'on' : ''}" data-topic="${code}">${info.name} <span style="opacity:.6;">${info.count}</span></button>`
       ).join('');
+    container.innerHTML = allChip + topicChips;
   };
-  render(map1, document.getElementById('topic-chips-1'));
-  render(map2, document.getElementById('topic-chips-2'));
+  render(map1, document.getElementById('topic-chips-1'), 1);
+  render(map2, document.getElementById('topic-chips-2'), 2);
   updateTopicSummary();
 }
 
@@ -995,10 +1001,26 @@ document.getElementById('topic-chips-2').addEventListener('click', e => toggleTo
 function toggleTopic(e) {
   const btn = e.target.closest('.chip');
   if (!btn) return;
+  const subjAll = btn.dataset.allSubj;
+  if (subjAll) {
+    const codes = subjTopicCodes[subjAll] || [];
+    const allOn = codes.length > 0 && codes.every(c => selectedTopics.has(c));
+    if (allOn) codes.forEach(c => selectedTopics.delete(c));
+    else codes.forEach(c => selectedTopics.add(c));
+    renderTopicChips();
+    return;
+  }
   const code = btn.dataset.topic;
   if (selectedTopics.has(code)) selectedTopics.delete(code);
   else selectedTopics.add(code);
   btn.classList.toggle('on');
+  const subj = window.QUESTION_BANK.find(q => q.topic === code)?.subj;
+  if (subj) {
+    const codes = subjTopicCodes[subj] || [];
+    const allOn = codes.length > 0 && codes.every(c => selectedTopics.has(c));
+    const allChip = document.querySelector(`[data-all-subj="${subj}"]`);
+    if (allChip) allChip.classList.toggle('on', allOn);
+  }
   updateTopicSummary();
 }
 
